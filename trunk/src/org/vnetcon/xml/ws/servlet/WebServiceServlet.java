@@ -56,7 +56,6 @@ public class WebServiceServlet extends HttpServlet {
 	String strXsd = null;
 	
 	
-
 	/**
 	 * This will load the user created "WebService" class which is actually
 	 * actually normal class which public methods are treated as WebService
