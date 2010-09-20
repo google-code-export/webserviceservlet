@@ -216,7 +216,7 @@ public class RequestHandler {
 			}
 
 			// now we are dealing with java types like String, BigInteger, GregorianCalendar etc.
-			if(paramClassAsString.indexOf(".") > -1 && (paramClassAsString.startsWith("java.") || paramClassAsString.startsWith("java."))){
+			if(paramClassAsString.indexOf(".") > -1 && (paramClassAsString.startsWith("java.") || paramClassAsString.startsWith("javax."))){
 
 				if(paramClassAsString.equals("java.lang.String")){
 					String xml = smc.getParameterXml(parameterClassForXmlRetrieve);
@@ -279,7 +279,7 @@ public class RequestHandler {
 		String retObjectClass = retObject.getClass().getName();
 //		System.out.println("retObject: " + retObject);
 
-		if(retObjectClass.indexOf(".") > -1 && !retObjectClass.startsWith("java.") && !retObjectClass.startsWith("java.")){
+		if(retObjectClass.indexOf(".") > -1 && !retObjectClass.startsWith("java.") && !retObjectClass.startsWith("javax.")){
 			retObject = this.marshal(retObject);
 			
 			strRet += "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n";
