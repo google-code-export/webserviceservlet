@@ -158,7 +158,7 @@ public class RequestHandler {
 			String paramClassAsString = param.getParameterClassAsString();
 
 			// get class for name if class not java class and not native (= contains . in class as package separator)
-			if(!paramClassAsString.startsWith("java.") && !paramClassAsString.startsWith("java.") && paramClassAsString.indexOf(".") > -1){
+			if(!paramClassAsString.startsWith("java.") && !paramClassAsString.startsWith("javax.") && paramClassAsString.indexOf(".") > -1){
 				partytypes[i] = Class.forName(paramClassAsString);
 			}
 
