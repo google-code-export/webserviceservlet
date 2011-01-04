@@ -240,7 +240,17 @@ public class SchemaGenerator {
 			s += schemaNameList.get(i).replaceAll("type=\"", "type=\"" + XmlBase.TAG_ORG_SCHEMA_XMLNS) + "\n";
 			i++;
 		}
-		
+/*
+		int iComplexCount = 0;
+		i = 0;
+		if(s.toLowerCase().indexOf("xs:complextype") > -1){
+			iComplexCount++;
+		}
+		while(i < iComplexCount - 1){
+			s += "</xs:complexType>\n";
+			i++;
+		}
+*/		
 		s += "\n";
 		
 		i = 0;
@@ -249,8 +259,7 @@ public class SchemaGenerator {
 			s += schemaTypeList.get(i).replaceAll("type=\"tns:", "type=\"" + XmlBase.TAG_ORG_SCHEMA_XMLNS) + "\n";
 			i++;
 		}
-		
-		
+				
 		s += "</xs:schema>\n";
 		
 		return s;

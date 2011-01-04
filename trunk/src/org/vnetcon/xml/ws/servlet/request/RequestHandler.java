@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.transform.stream.StreamSource;
 
 import org.vnetcon.xml.ws.servlet.dao.MethodParameter;
 import org.vnetcon.xml.ws.servlet.dao.SoapMethodCall;
@@ -277,15 +278,19 @@ public class RequestHandler {
 		callMethod = this.wsClass.getMethod(webMethod.getMethodName(), partytypes);
 		retObject = callMethod.invoke(wsObject, oParams);
 		String retObjectClass = retObject.getClass().getName();
-//		System.out.println("retObject: " + retObject);
 
 		if(retObjectClass.indexOf(".") > -1 && !retObjectClass.startsWith("java.") && !retObjectClass.startsWith("javax.")){
-			retObject = this.marshal(retObject);
+//			retObject = this.marshal(retObject);
+			String str = this.marshal(retObject);
+//			str = str.replaceAll("retMessage", "RetMessage");
+//			str = str.replaceAll("<wsResultSet>", "<type=\"WSResultSet\" wsResultSet>");
 			
 			strRet += "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n";
 			strRet += " <soap:Body>\n";
 			strRet += "      <tns:" + smc.getMethodName() + "Response xmlns:tns=\"" + this.nameSpace + "\" targetNamespace=\"" + this.nameSpace + "\" >\n";
-			strRet += "               <return>" + retObject + "</return>\n";
+//			strRet += "               <return>" + retObject + "</return>\n";
+//			strRet += "               <return>" + str + "</return>\n";
+			strRet += "              <return>" + str + "</return>\n";
 			strRet += "      </tns:" + smc.getMethodName() + "Response>\n";
 			strRet += " </soap:Body>\n";
 			strRet += "</soap:Envelope>\n";		
@@ -517,7 +522,9 @@ public class RequestHandler {
 		//marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		unmarshaller.setSchema(null);
 		env = (Envelope)((JAXBElement)unmarshaller.unmarshal(bIn)).getValue();
-		return env;
+//		JAXBElement<Envelope> element = unmarshaller.unmarshal(new StreamSource(bIn),Envelope.class);
+//	    env = element.getValue();
+	    return env;
 	}
 	
 	
