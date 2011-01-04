@@ -43,7 +43,7 @@ import org.vnetcon.xml.ws.servlet.schema.SchemaGenerator;
 @SuppressWarnings("serial")
 public class WebServiceServlet extends HttpServlet {
 
-	String version = "v0.5 (beta release)";
+	String version = "v0.6 (beta release)";
 	
 	
 	String wsClassAsString = null;

@@ -111,6 +111,7 @@ public class WSSchema {
 		typeElement = "";
 		typeElement += "<" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType name=\"" + methodName + "Response\">\n";
 		typeElement += "<" + XmlBase.TAG_W3SCHEMA_XMLNS + "sequence>\n";
+//		typeElement += "<" + XmlBase.TAG_W3SCHEMA_XMLNS + "element name=\"return\" type=\"" + method.getReturnType().getSchemaElement() + "\" minOccurs=\"0\" />\n";
 		typeElement += "<" + XmlBase.TAG_W3SCHEMA_XMLNS + "element name=\"return\" type=\"" + method.getReturnType().getSchemaElement() + "\" minOccurs=\"0\" />\n";
 		typeElement += "</" + XmlBase.TAG_W3SCHEMA_XMLNS + "sequence>\n";
 		typeElement += "</" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType>\n";
@@ -202,6 +203,7 @@ public class WSSchema {
 	public void loadSchema(BufferedReader bfIn) throws Exception {
 		String s = null;
 		boolean inComplexTypes = false;
+		int iComplexTypeCount = 0;
 		
 		while((s = bfIn.readLine()) != null){
 //			s = s.trim();
@@ -221,21 +223,40 @@ public class WSSchema {
 			
 			if(inComplexTypes){
 				String complexType = "";
+				iComplexTypeCount++;
+				
 				if(s.indexOf("<" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType ") > -1){
 					complexType += s + "\n";
+										
+					
 					while((s = bfIn.readLine()) != null){
 						s = s.replaceAll("ref=\"", "ref=\"" + XmlBase.TAG_ORG_SCHEMA_XMLNS) + "\n";
+						
+						if(s.indexOf("<xs:element ") > -1 && s.indexOf(" type=\"") > -1 && s.indexOf(" type=\"xs:") == -1){
+							s = s.replaceAll("type=\"", "type=\"" + XmlBase.TAG_ORG_SCHEMA_XMLNS) + "\n";
+						}
+					
+						if(s.indexOf("<" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType ") > -1 || s.indexOf("<" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType>") > -1){
+							iComplexTypeCount++;
+						}
 
-						complexType += s + "\n";
 						if(s.indexOf("</" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType>") > -1){
+							iComplexTypeCount--;
+						}
+						
+						complexType += s + "\n";
+						if(s.indexOf("</" + XmlBase.TAG_W3SCHEMA_XMLNS + "complexType>") > -1 && iComplexTypeCount == 0){
 							String name = this.getComplexTypeName(complexType);
 							
 							if(!name.toLowerCase().equals(this.strClassName)){
 								this.schemaTypeHash.put(name, complexType);
 								this.schemaTypeList.add(complexType);
+								complexType = "";
 							}
-							break;
+							//break;
 						}
+						
+						
 					}
 				}
 			}
