@@ -34,6 +34,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.transform.stream.StreamSource;
 
+import org.vnetcon.xml.ws.servlet.WebServiceServlet;
 import org.vnetcon.xml.ws.servlet.dao.MethodParameter;
 import org.vnetcon.xml.ws.servlet.dao.SoapMethodCall;
 import org.vnetcon.xml.ws.servlet.dao.WebMethod;
@@ -52,8 +53,6 @@ import org.xmlsoap.schemas.soap.envelope.Envelope;
  */
 public class RequestHandler {
 	
-	JAXBContext jcEnvelope = null;
-	JAXBContext jcBody = null;
 	
 	String wsUrl = null;
 	String soapRequest = null;
@@ -81,8 +80,6 @@ public class RequestHandler {
 		this.wsClass = wsClass;
 		this.hashWebMethods = hashWebMethods;
 		this.wsUrl = wsUrl;
-		this.jcEnvelope = JAXBContext.newInstance(org.xmlsoap.schemas.soap.envelope.Envelope.class);
-		this.jcBody = JAXBContext.newInstance(org.xmlsoap.schemas.soap.envelope.Body.class);
 		
 		this.nameSpace = this.wsClass.getName();
 		parts = this.nameSpace.split("\\.");
@@ -111,6 +108,8 @@ public class RequestHandler {
 		return strBuf;
 	}
 
+	
+	
 	/**
 	 * This is called by RequestHandler creator and calling this
 	 * will start the actual "job to be done".
@@ -127,6 +126,9 @@ public class RequestHandler {
 		String methodRequest = smc.getMethodName();
 		WebMethod webMethod = this.hashWebMethods.get(methodRequest);
 		strRet = this.doNativeMethodCall(webMethod, smc);
+		env = null;
+		smc = null;
+		Runtime.getRuntime().gc();
 		return strRet;
 	}
 	
@@ -309,7 +311,10 @@ public class RequestHandler {
 		strRet += "</soap:Envelope>\n";		
 		
 //		System.out.println(strRet);
-		
+
+
+		retObject = null;
+		Runtime.getRuntime().gc();
 		return strRet;
 	}
 
@@ -330,6 +335,8 @@ public class RequestHandler {
 		unmarshaller.setSchema(null);
 //		o = ((JAXBElement)unmarshaller.unmarshal(bIn)).getValue();
 		o = unmarshaller.unmarshal(bIn);
+		unmarshaller = null;
+		Runtime.getRuntime().gc();
 		return o;
 	}
 
@@ -356,6 +363,8 @@ public class RequestHandler {
 		strRet = strRet.replaceAll("<\\?.*.\\?>", "");
 		strRet = strRet.replaceAll("<" + strClassName + ">", "");
 		strRet = strRet.replaceAll("</" + strClassName + ">", "");
+		marshaller = null;
+		Runtime.getRuntime().gc();
 		return strRet;
 	}
 	
@@ -499,11 +508,13 @@ public class RequestHandler {
 	 */
 	private String bodyToXML(Body body) throws Exception {
 		String strRet = null;
-		Marshaller marshaller = jcBody.createMarshaller();
+		Marshaller marshaller = WebServiceServlet.jcBody.createMarshaller();
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		marshaller.marshal(body, bOut);
 		strRet = new String(bOut.toByteArray());
+		marshaller = null;
+		Runtime.getRuntime().gc();
 		return strRet;
 	}
 
@@ -517,13 +528,15 @@ public class RequestHandler {
 	 */
 	private Envelope xmlToEnvelope(String xml) throws Exception {
 		Envelope env = null;
-		Unmarshaller unmarshaller = jcEnvelope.createUnmarshaller();
+		Unmarshaller unmarshaller = WebServiceServlet.jcEnvelope.createUnmarshaller();
 		ByteArrayInputStream bIn = new ByteArrayInputStream(xml.getBytes());
 		//marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		unmarshaller.setSchema(null);
 		env = (Envelope)((JAXBElement)unmarshaller.unmarshal(bIn)).getValue();
 //		JAXBElement<Envelope> element = unmarshaller.unmarshal(new StreamSource(bIn),Envelope.class);
 //	    env = element.getValue();
+		unmarshaller = null;
+		Runtime.getRuntime().gc();
 	    return env;
 	}
 	
