@@ -23,11 +23,13 @@ package org.vnetcon.xml.ws.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.http.*;
+import javax.xml.bind.JAXBContext;
 
 import org.vnetcon.xml.ws.servlet.dao.WebMethod;
 import org.vnetcon.xml.ws.servlet.request.RequestHandler;
@@ -44,6 +46,8 @@ import org.vnetcon.xml.ws.servlet.schema.SchemaGenerator;
 public class WebServiceServlet extends HttpServlet {
 
 	String version = "v0.6 (beta release)";
+	public static JAXBContext jcEnvelope = null;
+	public static JAXBContext jcBody = null;
 	
 	
 	String wsClassAsString = null;
@@ -91,6 +95,8 @@ public class WebServiceServlet extends HttpServlet {
 	@Override
 	public void init() {
 		try {
+			jcEnvelope = JAXBContext.newInstance(org.xmlsoap.schemas.soap.envelope.Envelope.class);
+			jcBody = JAXBContext.newInstance(org.xmlsoap.schemas.soap.envelope.Body.class);
 			hashWebMethods = new HashMap<String, WebMethod>();
 			this.wsClassAsString = this.getInitParameter("WebServiceClass");
 			this.schemaFilePath = this.getInitParameter("SchemaFilePath");
@@ -180,6 +186,7 @@ public class WebServiceServlet extends HttpServlet {
 
 		int iLength = req.getContentLength();
 		InputStream reqIn = req.getInputStream();
+		OutputStream reqOut = resp.getOutputStream();
 		byte buffer[] = null;
 		
 		
@@ -208,10 +215,23 @@ public class WebServiceServlet extends HttpServlet {
 			reqIn.read(buffer, 0, iLength);
 			requestString = new String(buffer, 0, iLength);
 			try{
+				byte[] buf = null;
 				rh = new RequestHandler(requestString, this.wsClass, this.hashWebMethods, requestUrl);
 				reply = rh.execute();
 				resp.setContentType("text/xml");
-				resp.getWriter().println(reply);
+				//resp.getWriter().println(reply);
+				buf = reply.getBytes();
+				if(buf.length > 10000000){
+					throw new Exception("Buffer size exceed GAE limit 10.000.000 bytes: " + buf.length);
+				}
+				resp.setContentLength(buf.length);
+				reqOut.write(buf);
+				reqOut.flush();
+				//resp.flushBuffer();
+				reqOut.close();
+				reqIn.close();
+				rh = null;
+				Runtime.getRuntime().gc();
 			}catch(Exception ex){
 				resp.setContentType("text/plain");
 				resp.getWriter().println("WebService error:\n\n");
