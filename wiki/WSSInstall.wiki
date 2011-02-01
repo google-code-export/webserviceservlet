@@ -170,7 +170,3 @@ http://localhost:8888/test/ws?wsdl
 and / or
 
 http://localhost:8888/test/ws?xsd=1
-
-
-== Creating client side classes with Eclipse ==
-
