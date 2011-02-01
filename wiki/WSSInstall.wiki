@@ -23,6 +23,7 @@ You need to do following steps to get everything work properly.
   # Create schema file of all objects your web service class use
   # Tell to wss where your web service class locates in your application classes (WEB-INF/classes folder). This one you will do in web.xml
   # Tell to wss where the schema file created of objects locates (in WEB-INF/classes folder)
+  # Test your environment
 
 
 === 1. Creating Web Application Project ===
@@ -108,15 +109,17 @@ Please note that Eclipse will always clean this folder when compiling project so
 
 === 5. Tell to wss where your WebService class locates ===
 
-This you will do by editing web.xml file. Below is the example configuration from web.xml
+This you will do by editing web.xml file. Below is the example configuration from web.xml. (see the comments in example)
 
 {{{
 <servlet>
 	<servlet-name>WebServiceServlet</servlet-name>
 	<servlet-class>org.vnetcon.xml.ws.servlet.WebServiceServlet</servlet-class>
 	<init-param>
-		*<param-name>WebServiceClass</param-name>*
-		*<param-value>org.vnetcon.test.WebSerivce</param-value>*
+		<!-- This is the param name wss uses -->
+		<param-name>WebServiceClass</param-name>
+		<!-- This is your web service class -->
+		<param-value>org.vnetcon.test.WebSerivce</param-value>
 	</init-param>
 	<init-param>
 		<param-name>SchemaFilePath</param-name>
@@ -131,8 +134,43 @@ This you will do by editing web.xml file. Below is the example configuration fro
 }}}
 
 
+=== 6. Tell to wss where schema1.xsd locates ===
+
+This you will do by editing web.xml file. Below is the example configuration from web.xml. (see the comments in example)
+
+{{{
+<servlet>
+	<servlet-name>WebServiceServlet</servlet-name>
+	<servlet-class>org.vnetcon.xml.ws.servlet.WebServiceServlet</servlet-class>
+	<init-param>
+		<param-name>WebServiceClass</param-name>
+		<param-value>org.vnetcon.test.WebSerivce</param-value>
+	</init-param>
+	<init-param>
+		<!-- This is the param name wss uses -->
+		<param-name>SchemaFilePath</param-name>
+		<!-- This is the location of schema1.xsd in WEB-INF/classed folder -->
+		<param-value>/org/vnetcon/test/schema1.xsd</param-value>
+	</init-param>
+</servlet>
+<servlet-mapping>
+	<servlet-name>WebServiceServlet</servlet-name>
+	<url-pattern>/test/ws/*</url-pattern>
+</servlet-mapping>
+
+}}}
 
 
+=== 7. Test your environment ===
+
+After these steps you can test your that everything is correct by starting your web application and pointing your browser at 
+
+http://localhost:8888/test/ws?wsdl
+
+and / or
+
+http://localhost:8888/test/ws?xsd=1
 
 
+== Creating client side classes with Eclipse ==
 
